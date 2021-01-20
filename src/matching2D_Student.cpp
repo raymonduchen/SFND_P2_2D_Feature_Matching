@@ -101,3 +101,78 @@ void detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool b
         cv::waitKey(0);
     }
 }
+
+
+// Detect keypoints in image using the Harris detector
+void detKeypointsHarris(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
+{
+    int blockSize = 2;     // for every pixel, a blockSize × blockSize neighborhood is considered
+    int apertureSize = 3;  // aperture parameter for Sobel operator (must be odd)
+    int minResponse = 100; // minimum value for a corner in the 8bit scaled response matrix
+    double k = 0.04;       // Harris parameter (see equation for details)
+
+    // Apply corner detection
+    double t = (double)cv::getTickCount();
+    
+    // Detect Harris corners and normalize output
+    cv::Mat dst, dst_norm, dst_norm_scaled;
+    dst = cv::Mat::zeros(img.size(), CV_32FC1);
+    cv::cornerHarris(img, dst, blockSize, apertureSize, k, cv::BORDER_DEFAULT);
+    cv::normalize(dst, dst_norm, 0, 255, cv::NORM_MINMAX, CV_32FC1); //, cv::Mat());
+    cv::convertScaleAbs(dst_norm, dst_norm_scaled);
+
+
+    // Locate local maxima in the Harris response matrix and perform non-maximum suppression (NMS) 
+    // in a local neighborhood around each maximum. The resulting coordinates shall be stored in a 
+    // list of keypoints of the type `vector<cv::KeyPoint>`.
+    const int nms_window_size = 2 * apertureSize + 1; // 7 x 7
+    const int rows = dst_norm.rows;
+    const int cols = dst_norm.cols;
+
+    // Store the resulting points in a vector of cv::KeyPoints
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            int centre_r = -1;
+            int centre_c = -1;
+
+            // The max value is set to the minimum response
+            // We should have keypoints that exceed this first
+            unsigned char max_val = static_cast<unsigned char>(minResponse);
+            for (int x = -nms_window_size; x <= nms_window_size; x++) {
+                for (int y = -nms_window_size; y <= nms_window_size; y++) {
+                    if ((i + x) < 0 || (i + x) >= rows) {
+                        continue;
+                    }
+                    if ((j + y) < 0 || (j + y) >= cols) {
+                        continue;
+                    }
+                    const unsigned char val = dst_norm_scaled.at<unsigned char>(i + x, j + y);
+                    if (val > max_val) {
+                        max_val = val;
+                        centre_r = i + x;
+                        centre_c = j + y;
+                    }
+                }
+            }
+
+            // If the largest value was at the centre, remember this keypoint
+            if (centre_r == i && centre_c == j) {
+                keypoints.emplace_back(j, i, 2 * apertureSize, -1, max_val);
+            }
+        }
+    }
+
+    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    cout << "Harris detection with n=" << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
+
+    // visualize results
+    if (bVis)
+    {
+        cv::Mat visImage = img.clone();
+        cv::drawKeypoints(img, keypoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+        string windowName = "Harris Corner Detector Results";
+        cv::namedWindow(windowName, 6);
+        imshow(windowName, visImage);
+        cv::waitKey(0);
+    }
+}
