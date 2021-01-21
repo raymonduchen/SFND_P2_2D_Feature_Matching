@@ -296,7 +296,7 @@ void detKeypointsAkaze(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool 
 }
 
 
-// Detect keypoints in image using the Akaze detector
+// Detect keypoints in image using the Sift detector
 void detKeypointsSift(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
 {
     int nfeatures = 0;
