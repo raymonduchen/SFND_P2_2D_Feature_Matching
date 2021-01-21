@@ -81,8 +81,8 @@ int main(int argc, const char *argv[])
         //string detectorType = "FAST";
         //string detectorType = "BRISK";
         //string detectorType = "ORB";
-        string detectorType = "AKAZE";
-        //string detectorType = "SIFT";
+        //string detectorType = "AKAZE";
+        string detectorType = "SIFT";
 
         //// STUDENT ASSIGNMENT
         //// TASK MP.2 -> add the following keypoint detectors in file matching2D.cpp and enable string-based selection based on detectorType
@@ -167,7 +167,8 @@ int main(int argc, const char *argv[])
         //string descriptorType = "BRISK"; // BRIEF, ORB, FREAK, AKAZE, SIFT
         //string descriptorType = "ORB"; 
         //string descriptorType = "FREAK"; 
-        string descriptorType = "AKAZE"; 
+        //string descriptorType = "AKAZE"; 
+        string descriptorType = "SIFT"; 
         descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
         //// EOF STUDENT ASSIGNMENT
 
@@ -183,7 +184,8 @@ int main(int argc, const char *argv[])
 
             vector<cv::DMatch> matches;
             string matcherType = "MAT_BF";        // MAT_BF, MAT_FLANN
-            string descriptorType = "DES_BINARY"; // DES_BINARY, DES_HOG
+            //string descriptorType = "DES_BINARY"; // DES_BINARY, DES_HOG
+            string descriptorType = "DES_HOG";
             string selectorType = "SEL_NN";       // SEL_NN, SEL_KNN
 
             //// STUDENT ASSIGNMENT

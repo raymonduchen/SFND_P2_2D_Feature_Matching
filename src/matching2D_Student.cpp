@@ -11,9 +11,14 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     bool crossCheck = false;
     cv::Ptr<cv::DescriptorMatcher> matcher;
 
+    int normType;
+    if (descriptorType == "DES_BINARY")
+        normType = cv::NORM_HAMMING;
+    else //DES_HOG
+        normType = cv::NORM_L2;
+
     if (matcherType.compare("MAT_BF") == 0)
     {
-        int normType = cv::NORM_HAMMING;
         matcher = cv::BFMatcher::create(normType, crossCheck);
     }
     else if (matcherType.compare("MAT_FLANN") == 0)
@@ -88,6 +93,29 @@ void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descr
         extractor = cv::AKAZE::create(descriptor_type, descriptor_size, descriptor_channels,
                                       threshold, nOctaves, nOctaveLayers, diffusivity);
 
+    }
+    else if (descriptorType.compare("SIFT") == 0)
+    {
+        int nfeatures = 0;
+        int nOctaveLayers = 3;
+        double contrastThreshold = 0.04;
+        double edgeThreshold = 10;
+        double sigma = 1.6;
+
+        extractor = cv::SIFT::create(nfeatures, nOctaveLayers, contrastThreshold,
+                                     edgeThreshold, sigma);
+    }
+    else
+    {
+        std::cout << "Unknow Descriptor, use SIFT as default." << std::endl;
+        int nfeatures = 0;
+        int nOctaveLayers = 3;
+        double contrastThreshold = 0.04;
+        double edgeThreshold = 10;
+        double sigma = 1.6;
+
+        extractor = cv::SIFT::create(nfeatures, nOctaveLayers, contrastThreshold,
+                                     edgeThreshold, sigma);
     }
 
     // perform feature description
