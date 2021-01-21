@@ -48,10 +48,21 @@ void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descr
 
         extractor = cv::BRISK::create(threshold, octaves, patternScale);
     }
-    else
+    else if (descriptorType.compare("ORB") == 0)
     {
 
-        //...
+      int nfeatures = 500;
+      float scaleFactor = 1.2f;
+      int nlevels = 8;
+      int edgeThreshold = 31;
+      int firstLevel = 0;
+      int WTA_K = 2;
+      cv::ORB::ScoreType scoreType = cv::ORB::HARRIS_SCORE;
+      int patchSize = 31;
+      int fastThreshold = 20;
+
+      extractor = cv::ORB::create(nfeatures, scaleFactor, nlevels, edgeThreshold, firstLevel,
+                                  WTA_K, scoreType, patchSize, fastThreshold);
     }
 
     // perform feature description
