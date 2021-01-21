@@ -203,4 +203,29 @@ void detKeypointsFast(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool b
     }
 }
 
+// Detect keypoints in image using the Fast detector
+void detKeypointsBrisk(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
+{
+    int threshold = 30;
+    int octaves = 3;
+    float patternScale = 1.0f;
+
+    // Apply corner detection
+    double t = (double)cv::getTickCount();
+    cv::Ptr<cv::FeatureDetector> detector = cv::BRISK::create(threshold, octaves, patternScale);
+    detector->detect(img, keypoints);
+    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    cout << "Fast detection with n=" << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
+
+    // visualize results
+    if (bVis)
+    {
+        cv::Mat visImage = img.clone();
+        cv::drawKeypoints(img, keypoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+        string windowName = "Fast Corner Detector Results";
+        cv::namedWindow(windowName, 6);
+        imshow(windowName, visImage);
+        cv::waitKey(0);
+    }
+}
 
