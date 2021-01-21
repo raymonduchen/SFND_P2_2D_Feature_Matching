@@ -203,7 +203,7 @@ void detKeypointsFast(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool b
     }
 }
 
-// Detect keypoints in image using the Fast detector
+// Detect keypoints in image using the Brisk detector
 void detKeypointsBrisk(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
 {
     int threshold = 30;
@@ -215,14 +215,48 @@ void detKeypointsBrisk(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool 
     cv::Ptr<cv::FeatureDetector> detector = cv::BRISK::create(threshold, octaves, patternScale);
     detector->detect(img, keypoints);
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
-    cout << "Fast detection with n=" << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
+    cout << "Brisk detection with n=" << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
 
     // visualize results
     if (bVis)
     {
         cv::Mat visImage = img.clone();
         cv::drawKeypoints(img, keypoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-        string windowName = "Fast Corner Detector Results";
+        string windowName = "Brisk Corner Detector Results";
+        cv::namedWindow(windowName, 6);
+        imshow(windowName, visImage);
+        cv::waitKey(0);
+    }
+}
+
+
+// Detect keypoints in image using the Orb detector
+void detKeypointsOrb(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
+{
+    int nfeatures = 500;
+    float scaleFactor = 1.2f;
+    int nlevels = 8;
+    int edgeThreshold = 31;
+    int firstLevel = 0;
+    int WTA_K = 2;
+    cv::ORB::ScoreType scoreType = cv::ORB::HARRIS_SCORE;
+    int patchSize = 31;
+    int fastThreshold = 20;
+
+    // Apply corner detection
+    double t = (double)cv::getTickCount();
+    cv::Ptr<cv::FeatureDetector> detector = cv::ORB::create(nfeatures, scaleFactor, nlevels, edgeThreshold, 
+                                                            firstLevel, WTA_K, scoreType, patchSize, fastThreshold);
+    detector->detect(img, keypoints);
+    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    cout << "Orb detection with n=" << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
+
+    // visualize results
+    if (bVis)
+    {
+        cv::Mat visImage = img.clone();
+        cv::drawKeypoints(img, keypoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+        string windowName = "Orb Corner Detector Results";
         cv::namedWindow(windowName, 6);
         imshow(windowName, visImage);
         cv::waitKey(0);
