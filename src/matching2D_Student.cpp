@@ -75,6 +75,20 @@ void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descr
         extractor = cv::xfeatures2d::FREAK::create(orientationNormalized, scaleNormalized, patternScale, 
                                                    nOctaves, selectedPairs);
     }
+    else if (descriptorType.compare("AKAZE") == 0)
+    {
+        cv::AKAZE::DescriptorType descriptor_type = cv::AKAZE::DESCRIPTOR_MLDB;
+        int descriptor_size = 0;
+        int descriptor_channels = 3;
+        float threshold = 0.001f;
+        int nOctaves = 4;
+        int nOctaveLayers = 4;
+        cv::KAZE::DiffusivityType diffusivity = cv::KAZE::DIFF_PM_G2;
+
+        extractor = cv::AKAZE::create(descriptor_type, descriptor_size, descriptor_channels,
+                                      threshold, nOctaves, nOctaveLayers, diffusivity);
+
+    }
 
     // perform feature description
     double t = (double)cv::getTickCount();
