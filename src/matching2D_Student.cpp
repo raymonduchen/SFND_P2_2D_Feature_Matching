@@ -40,8 +40,18 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     }
     else if (selectorType.compare("SEL_KNN") == 0)
     { // k nearest neighbors (k=2)
-
-        // ...
+        std::vector<std::vector<cv::DMatch>> knn_matches;
+        matcher->knnMatch(descSource, descRef, knn_matches, 2);
+        
+        for (int i = 0; i < knn_matches.size(); i++) {
+            const float dist1 = knn_matches[i][0].distance;
+            const float dist2 = knn_matches[i][1].distance;
+            if ((dist1 / dist2) < 0.8) {
+              // Push the best match between the two matches if we are lower than the threshold
+              matches.push_back(knn_matches[i][0]);
+            }
+        }
+        
     }
 }
 
