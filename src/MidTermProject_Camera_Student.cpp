@@ -81,7 +81,8 @@ int main(int argc, const char *argv[])
         //string detectorType = "FAST";
         //string detectorType = "BRISK";
         //string detectorType = "ORB";
-        string detectorType = "AKAZE";
+        //string detectorType = "AKAZE";
+        string detectorType = "SIFT";
 
         //// STUDENT ASSIGNMENT
         //// TASK MP.2 -> add the following keypoint detectors in file matching2D.cpp and enable string-based selection based on detectorType
@@ -113,7 +114,7 @@ int main(int argc, const char *argv[])
         }
         else if (detectorType.compare("SIFT") == 0)
         {
-
+            detKeypointsSift(keypoints, imgGray, false);
         }
         else if (detectorType.compare("BRIEF") == 0)
         {
