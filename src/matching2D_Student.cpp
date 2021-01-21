@@ -176,3 +176,31 @@ void detKeypointsHarris(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool
         cv::waitKey(0);
     }
 }
+
+// Detect keypoints in image using the Fast detector
+void detKeypointsFast(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
+{
+    int threshold = 10;
+    bool nms = true;
+    cv::FastFeatureDetector::DetectorType type = cv::FastFeatureDetector::TYPE_9_16;  //TYPE_7_12, TYPE_5_8
+
+    // Apply corner detection
+    double t = (double)cv::getTickCount();
+    cv::Ptr<cv::FeatureDetector> detector = cv::FastFeatureDetector::create(threshold, nms, type);
+    detector->detect(img, keypoints);
+    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
+    cout << "Fast detection with n=" << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
+
+    // visualize results
+    if (bVis)
+    {
+        cv::Mat visImage = img.clone();
+        cv::drawKeypoints(img, keypoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+        string windowName = "Fast Corner Detector Results";
+        cv::namedWindow(windowName, 6);
+        imshow(windowName, visImage);
+        cv::waitKey(0);
+    }
+}
+
+
