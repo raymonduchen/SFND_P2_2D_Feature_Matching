@@ -17,7 +17,7 @@ void addFrameToBuffer(std::vector<DataFrame> &dataBuffer, cv::Mat &img, int data
     dataBuffer.push_back(frame);
 
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
-    cout << "Load frame to buffer in " << 1000 * t / 1.0 << " ms" << endl;
+    //cout << "Load frame to buffer in " << 1000 * t / 1.0 << " ms" << endl;
 }
 
 // Find best matches for keypoints in two camera images based on several matching methods
@@ -65,13 +65,16 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     }
     else if (selectorType.compare("SEL_KNN") == 0)
     { // k nearest neighbors (k=2)
+        int k = 2;
+        float threshold = 0.8;
+
         std::vector<std::vector<cv::DMatch>> knn_matches;
-        matcher->knnMatch(descSource, descRef, knn_matches, 2);
+        matcher->knnMatch(descSource, descRef, knn_matches, k);
 
         for (int i = 0; i < knn_matches.size(); i++) {
             const float dist1 = knn_matches[i][0].distance;
             const float dist2 = knn_matches[i][1].distance;
-            if ((dist1 / dist2) < 0.8) {
+            if ((dist1 / dist2) < threshold) {
               // Push the best match between the two matches if we are lower than the threshold
               matches.push_back(knn_matches[i][0]);
             }
@@ -84,7 +87,7 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
 }
 
 // Use one of several types of state-of-art descriptors to uniquely identify keypoints
-void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descriptors, string descriptorType)
+double descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descriptors, string descriptorType)
 {
     // select appropriate descriptor
     cv::Ptr<cv::DescriptorExtractor> extractor;
@@ -173,44 +176,53 @@ void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descr
 
         extractor = cv::SIFT::create();
     }
+    else
+    {
+        return 0.0;
+    }
 
     // perform feature description
     double t = (double)cv::getTickCount();
     extractor->compute(img, keypoints, descriptors);
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
     cout << descriptorType << " descriptor extraction in " << 1000 * t / 1.0 << " ms" << endl;
-
+    
+    return t;
 }
 
-void detKeypointsModern(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, std::string detectorType, bool bVis)
+double detKeypointsModern(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, std::string detectorType, bool bVis)
 {
     if (detectorType.compare("SHITOMASI") == 0)
     {
-        detKeypointsShiTomasi(keypoints, img, bVis);
+        return detKeypointsShiTomasi(keypoints, img, bVis);
     }
     else if (detectorType.compare("HARRIS") == 0)
     {
-        detKeypointsHarris(keypoints, img, bVis);
+        return detKeypointsHarris(keypoints, img, bVis);
     }
     else if (detectorType.compare("FAST") == 0)
     {
-        detKeypointsFast(keypoints, img, bVis);
+        return detKeypointsFast(keypoints, img, bVis);
     }
     else if (detectorType.compare("BRISK") == 0)
     {
-        detKeypointsBrisk(keypoints, img, bVis);
+        return detKeypointsBrisk(keypoints, img, bVis);
     }
     else if (detectorType.compare("ORB") == 0)
     {
-        detKeypointsOrb(keypoints, img, bVis);
+        return detKeypointsOrb(keypoints, img, bVis);
     }
     else if (detectorType.compare("AKAZE") == 0)
     {
-        detKeypointsAkaze(keypoints, img, bVis);
+        return detKeypointsAkaze(keypoints, img, bVis);
     }
     else if (detectorType.compare("SIFT") == 0)
     {
-        detKeypointsSift(keypoints, img, bVis);
+        return detKeypointsSift(keypoints, img, bVis);
+    }
+    else
+    {
+        return 0.0;
     }
 }
 
@@ -220,7 +232,7 @@ void roiKeypoints(std::vector<cv::KeyPoint> &keypoints, cv::Rect roi)
               [roi](cv::KeyPoint point) {return !roi.contains(point.pt);}), 
               keypoints.end());
 
-    cout << "Region of interest has n=" << keypoints.size() << " keypoints" << endl;
+    cout << "Keypoints on vehicle: " << keypoints.size() << endl;
 
 }
 
@@ -236,14 +248,12 @@ void limitKeypoints(std::vector<cv::KeyPoint> &keypoints, std::string detectorTy
     else
     {
         cout << "Not support keypoints limiting for the detector" << endl;
-    }
-
-    
+    } 
 }
 
 
 // Detect keypoints in image using the traditional Shi-Thomasi detector
-void detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
+double detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
 {
     double t = (double)cv::getTickCount();
     // compute detector parameters based on image size
@@ -262,7 +272,6 @@ void detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool b
     // add corners to result vector
     for (auto it = corners.begin(); it != corners.end(); ++it)
     {
-
         cv::KeyPoint newKeyPoint;
         newKeyPoint.pt = cv::Point2f((*it).x, (*it).y);
         newKeyPoint.size = blockSize;
@@ -282,11 +291,12 @@ void detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool b
         //cout << "Press key to continue" << endl;
         //cv::waitKey(0);
     }
+    return t;
 }
 
 
 // Detect keypoints in image using the Harris detector
-void detKeypointsHarris(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
+double detKeypointsHarris(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
 {
     double t = (double)cv::getTickCount();
     int blockSize = 2;     // for every pixel, a blockSize × blockSize neighborhood is considered
@@ -357,10 +367,11 @@ void detKeypointsHarris(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool
         //cout << "Press key to continue" << endl;
         //cv::waitKey(0);
     }
+    return t;
 }
 
 // Detect keypoints in image using the Fast detector
-void detKeypointsFast(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
+double detKeypointsFast(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
 {
     double t = (double)cv::getTickCount();
     
@@ -387,10 +398,11 @@ void detKeypointsFast(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool b
         //cout << "Press key to continue" << endl;
         //cv::waitKey(0);
     }
+    return t;
 }
 
 // Detect keypoints in image using the Brisk detector
-void detKeypointsBrisk(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
+double detKeypointsBrisk(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
 {
     double t = (double)cv::getTickCount();
     /*
@@ -419,11 +431,12 @@ void detKeypointsBrisk(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool 
         //cout << "Press key to continue" << endl;
         //cv::waitKey(0);
     }
+    return t;
 }
 
 
 // Detect keypoints in image using the Orb detector
-void detKeypointsOrb(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
+double detKeypointsOrb(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
 {
     double t = (double)cv::getTickCount();
     /*
@@ -458,11 +471,12 @@ void detKeypointsOrb(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bV
         //cout << "Press key to continue" << endl;
         //cv::waitKey(0);
     }
+    return t;
 }
 
 
 // Detect keypoints in image using the Akaze detector
-void detKeypointsAkaze(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
+double detKeypointsAkaze(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
 {
     double t = (double)cv::getTickCount();
     /*
@@ -495,11 +509,12 @@ void detKeypointsAkaze(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool 
         //cout << "Press key to continue" << endl;
         //cv::waitKey(0);
     }
+    return t;
 }
 
 
 // Detect keypoints in image using the Sift detector
-void detKeypointsSift(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
+double detKeypointsSift(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis)
 {
     double t = (double)cv::getTickCount();
     /*
@@ -530,6 +545,7 @@ void detKeypointsSift(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool b
         //cout << "Press key to continue" << endl;
         //cv::waitKey(0);
     }
+    return t;
 }
 
 

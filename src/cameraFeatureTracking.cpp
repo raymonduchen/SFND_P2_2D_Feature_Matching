@@ -137,6 +137,12 @@ int main(int argc, const char *argv[])
     int dataBufferSize = 2;       // no. of images which are held in memory (ring buffer) at the same time
     vector<DataFrame> dataBuffer; // list of data frames which are held in memory at the same time
 
+    double detectorTime = 0.0;
+    double descriptorTime = 0.0;
+    int countImages = 0;
+    string roiKeypointsLog = "";
+    string matchedKeypointsLog = "";
+
     /* MAIN LOOP OVER ALL IMAGES */
 
     for (size_t imgIndex = 0; imgIndex <= imgEndIndex - imgStartIndex; imgIndex++)
@@ -168,13 +174,14 @@ int main(int argc, const char *argv[])
         vector<cv::KeyPoint> keypoints; // create empty feature list for current image
 
         //// TASK MP.2 -> add the following keypoint detectors in file matching2D.cpp and enable string-based selection based on detectorType
-        detKeypointsModern(keypoints, imgGray, detectorType, bVis);
+        detectorTime += detKeypointsModern(keypoints, imgGray, detectorType, bVis);
 
         //// TASK MP.3 -> only keep keypoints on the preceding vehicle
         // only keep keypoints on the preceding vehicle
         if (bFocusOnVehicle){
             cv::Rect roi = cv::Rect(535, 180, 180, 150);
             roiKeypoints(keypoints, roi);
+            roiKeypointsLog += to_string(keypoints.size()) + ", ";
         }
             
 
@@ -193,7 +200,7 @@ int main(int argc, const char *argv[])
         //// STUDENT ASSIGNMENT
         //// TASK MP.4 -> add the following descriptors in file matching2D.cpp and enable string-based selection based on descriptorType
         cv::Mat descriptors;
-        descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
+        descriptorTime += descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
 
         // push descriptors for current frame to end of data buffer
         (dataBuffer.end() - 1)->descriptors = descriptors;
@@ -212,10 +219,14 @@ int main(int argc, const char *argv[])
                              (dataBuffer.end() - 2)->descriptors, (dataBuffer.end() - 1)->descriptors,
                              matches, descriptorType, matcherType, selectorType);
 
+            // store number of matched keypoints (MP8)
+            matchedKeypointsLog += to_string(matches.size()) + ", ";
+
             // store matches in current data frame
             (dataBuffer.end() - 1)->kptMatches = matches;
 
             cout << "#4 : MATCH KEYPOINT DESCRIPTORS done" << endl;
+
 
             // visualize matches between current and previous image
             if (bVis)
@@ -236,7 +247,24 @@ int main(int argc, const char *argv[])
 
             cout << endl << "-----------------------------" << endl;
         }
+        countImages++;
     } // eof loop over all images
+
+    detectorTime /= countImages;
+    descriptorTime /= countImages;
+    
+    cout << "\n# Average Time #";
+    cout << "\nAverage Detector Time : "<< detectorTime * 1000 << " ms";
+    cout << "\nAverage Descriptor Time : "<< descriptorTime * 1000 << " ms";
+
+    if (bFocusOnVehicle)
+    {
+        //roiKeypointsLog.pop_back();
+        cout << "\nMP7 answer: " << roiKeypointsLog;
+    }
+    //matchedKeypointsLog.pop_back();
+    cout << "\nMP8 answer: " << matchedKeypointsLog << "\n";
+
 
     return 0;
 }
