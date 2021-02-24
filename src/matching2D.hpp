@@ -31,8 +31,8 @@ void detKeypointsSift(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool b
 
 
 void detKeypointsModern(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, std::string detectorType, bool bVis=false);
-void roiKeypoints(std::vector<cv::KeyPoint> &keypoints, cv::Rect roi = cv::Rect(535, 180, 180, 150));
-void limitKeypoints(std::vector<cv::KeyPoint> &keypoints, std::string detectorType, int maxKeypoints = 50);
+void roiKeypoints(std::vector<cv::KeyPoint> &keypoints, cv::Rect roi);
+void limitKeypoints(std::vector<cv::KeyPoint> &keypoints, std::string detectorType, int maxKeypoints);
 void descKeypoints(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descriptors, std::string descriptorType);
 void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::KeyPoint> &kPtsRef, cv::Mat &descSource, cv::Mat &descRef,
                       std::vector<cv::DMatch> &matches, std::string descriptorType, std::string matcherType, std::string selectorType);

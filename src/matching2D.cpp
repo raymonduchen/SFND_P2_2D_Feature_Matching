@@ -99,6 +99,16 @@ void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descr
         */
         extractor = cv::BRISK::create();
     }
+    else if (descriptorType.compare("BRIEF") == 0)
+    {
+        /*
+        int bytes = 32;
+        bool use_orientation = false;
+        
+        extractor = cv::xfeatures2d::BriefDescriptorExtractor::create(bytes, use_orientation);
+        */
+        extractor = cv::xfeatures2d::BriefDescriptorExtractor::create();
+    }
     else if (descriptorType.compare("ORB") == 0)
     {
         /*

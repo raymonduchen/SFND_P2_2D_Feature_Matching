@@ -172,13 +172,17 @@ int main(int argc, const char *argv[])
 
         //// TASK MP.3 -> only keep keypoints on the preceding vehicle
         // only keep keypoints on the preceding vehicle
-        if (bFocusOnVehicle)
-            roiKeypoints(keypoints);
+        if (bFocusOnVehicle){
+            cv::Rect roi = cv::Rect(535, 180, 180, 150);
+            roiKeypoints(keypoints, roi);
+        }
+            
 
         // optional : limit number of keypoints (helpful for debugging and learning)
-        int maxKeypoints = 10;
-        if (bLimitKpts)
+        if (bLimitKpts){
+            int maxKeypoints = 50;
             limitKeypoints(keypoints, detectorType, maxKeypoints);
+        }
 
         // push keypoints and descriptor for current frame to end of data buffer
         (dataBuffer.end() - 1)->keypoints = keypoints;
@@ -223,7 +227,7 @@ int main(int argc, const char *argv[])
                                 cv::Scalar::all(-1), cv::Scalar::all(-1),
                                 vector<char>(), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 
-                string windowName = "Matching keypoints between two camera images";
+                string windowName = "Matching keypoints between successive camera images";
                 cv::namedWindow(windowName, 7);
                 cv::imshow(windowName, matchImg);
                 cout << "Press key to continue to next image" << endl;
