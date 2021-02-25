@@ -17,7 +17,7 @@ The project consists of four parts :
 
 
 
-**The file directory of this project : **
+**The file directory of this project :**
 
 ```
 SFND_P2_2D_Feature_Matching
@@ -67,7 +67,7 @@ In this section, we'll count the number of keypoints on the preceding vehicle fo
 
 
 
-**Number of keypoints counted over all 10 images : **
+**Number of keypoints counted over all 10 images :**
 
 |  Detector  | Img 1 | Img 2 | Img 3 | Img 4 | Img 5 | Img 6 | Img 7 | Img 8 | Img 9 | Img 10 |
 | :--------: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :----: |
@@ -135,7 +135,7 @@ In this section, we'll count the number of matched keypoints for all 10 images u
 
 
 
-**Number of matched pairs for successive images for 10 images: **
+**Number of matched pairs for successive images for 10 images :**
 
 | Detector\Descriptor | **BRISK**                                   | **BRIEF**                                   | **ORB**                                     | **FREAK**                                   | **AKAZE**                                   | **SIFT**                                    |
 | ------------------- | ------------------------------------------- | ------------------------------------------- | ------------------------------------------- | ------------------------------------------- | ------------------------------------------- | ------------------------------------------- |
@@ -149,7 +149,7 @@ In this section, we'll count the number of matched keypoints for all 10 images u
 
 
 
-**Total number of matched pairs : **
+**Total number of matched pairs :**
 
 | Detector\Descriptor | **BRISK** | **BRIEF** | **ORB**       | **FREAK** | **AKAZE** | **SIFT** |
 | ------------------- | --------- | --------- | ------------- | --------- | --------- | -------- |
@@ -169,7 +169,7 @@ In this section, we'll log the time it takes for keypoint detection and descript
 
 
 
-**Average detector time \ Average descriptor time (ms) :  **
+**Average detector time \ Average descriptor time (ms) :**
 
 | Detector\Descriptor | **BRISK**        | **BRIEF**   | **ORB**       | **FREAK**    | **AKAZE**   | **SIFT**     |
 | ------------------- | ---------------- | ----------- | ------------- | ------------ | ----------- | ------------ |
@@ -210,3 +210,4 @@ Because our purpose is detecting keypoints on preceding vehicle, real time (<16.
   * Linux: gcc / g++ is installed by default on most Linux distros
   * Mac: same deal as make - [install Xcode command line tools](https://developer.apple.com/xcode/features/)
   * Windows: recommend using [MinGW](http://www.mingw.org/)
+
