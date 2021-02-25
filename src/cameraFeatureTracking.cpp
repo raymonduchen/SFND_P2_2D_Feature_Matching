@@ -103,9 +103,11 @@ int main(int argc, const char *argv[])
     
     if ((detectorType == "AKAZE" || descriptorType =="AKAZE") && (detectorType != descriptorType)){ 
         if (detectorType == "AKAZE")
-            cout << endl << "AKAZE detector only support AKAZE descriptor. Use AKAZE as detector and descriptor type" << endl;
+            cout << endl << "AKAZE detector only support AKAZE descriptor. Please reset again." << endl;
         if (descriptorType == "AKAZE")
-            cout << endl << "AKAZE descriptor only support AKAZE detector. Use AKAZE as detector and descriptor type" << endl;
+            cout << endl << "AKAZE descriptor only support AKAZE detector. Please reset again." << endl;
+
+        return 0;
 
         detectorType = "AKAZE";
         descriptorType = "AKAZE";
@@ -140,6 +142,7 @@ int main(int argc, const char *argv[])
     double detectorTime = 0.0;
     double descriptorTime = 0.0;
     int countImages = 0;
+    int totalMatchedKeypoints =0;
     string roiKeypointsLog = "";
     string matchedKeypointsLog = "";
 
@@ -221,6 +224,7 @@ int main(int argc, const char *argv[])
 
             // store number of matched keypoints (MP8)
             matchedKeypointsLog += to_string(matches.size()) + ", ";
+            totalMatchedKeypoints += matches.size();
 
             // store matches in current data frame
             (dataBuffer.end() - 1)->kptMatches = matches;
@@ -253,18 +257,19 @@ int main(int argc, const char *argv[])
     detectorTime /= countImages;
     descriptorTime /= countImages;
     
-    cout << "\n# Average Time #";
-    cout << "\nAverage Detector Time : "<< detectorTime * 1000 << " ms";
-    cout << "\nAverage Descriptor Time : "<< descriptorTime * 1000 << " ms";
+    cout << "\nAverage detector time : "<< detectorTime * 1000 << " ms";
+    cout << "\nAverage descriptor time : "<< descriptorTime * 1000 << " ms";
 
     if (bFocusOnVehicle)
     {
-        //roiKeypointsLog.pop_back();
-        cout << "\nMP7 answer: " << roiKeypointsLog;
+        roiKeypointsLog.pop_back();
+        // MP7 answer
+        cout << "\nNumber of keypoints (all images): " << roiKeypointsLog;
     }
-    //matchedKeypointsLog.pop_back();
-    cout << "\nMP8 answer: " << matchedKeypointsLog << "\n";
-
+    matchedKeypointsLog.pop_back();
+    // MP8 answer
+    cout << "\nNumber of matched keypoints (consecutive images): " << matchedKeypointsLog;
+    cout << "\nTotal number of matched Keypoints (consecutive images): " <<totalMatchedKeypoints << "\n";
 
     return 0;
 }
